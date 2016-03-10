@@ -6,7 +6,19 @@ add_library_with_exports(LIB_NAME drakeXMLUtil SOURCE_FILES xmlUtil.cpp)
 target_link_libraries(drakeXMLUtil tinyxml2 spruce)
 pods_install_libraries(drakeXMLUtil)
 
-add_library_with_exports(LIB_NAME drakeRBM SOURCE_FILES RigidBodyTree.cpp RigidBody.cpp RigidBodyTreeURDF.cpp RigidBodyTreeSDF.cpp RigidBodyTreeContact.cpp)
+add_library_with_exports(LIB_NAME drakeRBM SOURCE_FILES
+  RigidBody.cpp
+  RigidBodyTree.cpp
+  RigidBodyTreeContact.cpp
+  RigidBodyTreeDynamics.cpp
+  RigidBodyTreeJacobianQuaternion.cpp
+  RigidBodyTreeJacobianRollPitchYaw.cpp
+  RigidBodyTreeJacobianTransform.cpp
+  RigidBodyTreeMass.cpp
+  RigidBodyTreeMassMatrix.cpp
+  RigidBodyTreeSDF.cpp
+  RigidBodyTreeURDF.cpp
+  )
 target_link_libraries(drakeRBM drakeCollision drakeJoints drakeUtil drakeXMLUtil)
 pods_install_libraries(drakeRBM)
 drake_install_headers(RigidBodyTree.h RigidBody.h RigidBodyFrame.h KinematicPath.h KinematicsCache.h ForceTorqueMeasurement.h)
