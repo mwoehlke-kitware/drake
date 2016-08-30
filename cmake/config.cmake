@@ -136,6 +136,28 @@ macro(drake_setup_java)
 endmacro()
 
 #------------------------------------------------------------------------------
+# Set up job pool for linking.
+#------------------------------------------------------------------------------
+macro(drake_setup_link_pool)
+  if(CMAKE_GENERATOR STREQUAL "Ninja")
+    # Create a cache variable allowing the user to specify the maximum number
+    # of concurent link jobs that can be run in a Ninja build. (If the value is
+    # 0, let Ninja use as many as it wants.)
+    set(CMAKE_NINJA_LINK_POOL_SIZE 0 CACHE STRING
+      "Maximum number of concurent link jobs")
+
+    # Use the pool if the size is non-zero.
+    if(CMAKE_NINJA_LINK_POOL_SIZE GREATER 0)
+      # Configure a job pool to limit simultaneous linking.
+      set_property(GLOBAL PROPERTY
+        JOB_POOLS link_pool=${CMAKE_NINJA_LINK_POOL_SIZE})
+      # Assign all linking to our link job pool.
+      set(CMAKE_JOB_POOL_LINK link_pool)
+    endif()
+  endif()
+endmacro()
+
+#------------------------------------------------------------------------------
 # Add local CMake modules to CMake search path.
 #------------------------------------------------------------------------------
 function(drake_setup_cmake BASE_PATH)
@@ -158,11 +180,16 @@ macro(drake_setup_platform)
   drake_setup_compiler()
   drake_setup_matlab()
   drake_setup_java()
+  drake_setup_link_pool()
+
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+  option(BUILD_SHARED_LIBS "Build Drake with shared libraries." ON)
 
   # Choose your python (major) version
   option(WITH_PYTHON_3 "Force Drake to use python 3 instead of python 2" OFF)
 
-  # Set default build
+  # Set default build type
   if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING
       "The type of build. Options are: Debug Release RelWithDebInfo MinSizeRel."

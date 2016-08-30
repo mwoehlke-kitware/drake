@@ -8,27 +8,9 @@ include(../cmake/config.cmake)
 
 drake_setup_platform()
 
-# Create a cache variable that contains the
-# max number of concurent link jobs that can be run
-# in a Ninja build, if the value is 0 then let Ninja
-# use as many as it wants.
-set(CMAKE_NINJA_LINK_POOL_SIZE 0 CACHE STRING
-  "Number of concurent link jobs that can be run with Ninja build tool")
-# if the link pool is non-zero then set the property
-# on all the targets in drake
-if(CMAKE_NINJA_LINK_POOL_SIZE GREATER 0)
-  # Ninja: Configure a job pool to limit simultaneous linking.
-  set_property(GLOBAL PROPERTY JOB_POOLS link_pool=${CMAKE_NINJA_LINK_POOL_SIZE})
-  # Ninja: Assign all linking to our link job pool.
-  set(CMAKE_JOB_POOL_LINK link_pool)
-endif()
-
 # options
-option(BUILD_SHARED_LIBS "Build Drake with shared libraries." ON)
 option(LONG_RUNNING_TESTS "some tests should be run nightly for coverage, but are too slow for CI" OFF)
 option(RANDOMIZE_MATLAB_TESTS "every MATLAB unit is started with a new random seed" OFF)
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # prepend module path so we can override FindMatlab.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
