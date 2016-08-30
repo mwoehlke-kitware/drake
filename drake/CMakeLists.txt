@@ -42,12 +42,6 @@ function(add_library_with_exports)
 
   if(parsed_args_STATIC)
     add_library(${parsed_args_LIB_NAME} STATIC ${parsed_args_SOURCE_FILES})
-    # Add a public preprocessor macro definition for LIB_NAME_STATIC_DEFINE,
-    # which suppresses platform-specific shared library export declarations
-    # in this target and all targets that depend on it.
-    string(TOUPPER ${parsed_args_LIB_NAME} capitalized_lib_name)
-    set(static_define ${capitalized_lib_name}_STATIC_DEFINE)
-    target_compile_definitions(${parsed_args_LIB_NAME} PUBLIC ${static_define})
   else()
     add_library(${parsed_args_LIB_NAME} SHARED ${parsed_args_SOURCE_FILES})
   endif()
