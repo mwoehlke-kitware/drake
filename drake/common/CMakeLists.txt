@@ -44,15 +44,12 @@ set(private_headers
 
 # Create the library target and note its dependencies. Also generates
 # a header defining DRAKECOMMON_EXPORT for dealing with .dlls on Windows.
-add_library_with_exports(LIB_NAME drakeCommon
-  SOURCE_FILES ${sources} ${installed_headers} ${private_headers})
+drake_add_library(drakeCommon
+  ${sources} ${private_headers}
+  INSTALL_HEADERS ${installed_headers})
 target_link_libraries(drakeCommon threads)
 
-# Install all externally-visible headers.
-drake_install_headers(${installed_headers})
-
-# Install the library and note Drake's dependency on it.
-pods_install_libraries(drakeCommon)
+# Generate a .pc file for legacy / non-CMake users.
 pods_install_pkg_config_file(drake-common
   LIBS -ldrakeCommon
   REQUIRES
