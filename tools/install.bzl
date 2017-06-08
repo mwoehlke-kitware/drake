@@ -118,7 +118,7 @@ def _remove_prefix(path, prefix):
     return __remove_prefix(path.split("/"), prefix.split("/"))
 
 #------------------------------------------------------------------------------
-def _output_path(ctx, input_file, strip_prefix):
+def output_path(ctx, input_file, strip_prefix):
     """Compute output path (without destination prefix) for install action.
 
     This computes the adjusted output path for an input file. Specifically, it
@@ -204,7 +204,7 @@ def _install_actions(ctx, file_labels, dests, strip_prefix = []):
                 dest = dests.get(a.extension, dests[None])
             else:
                 dest = dests
-            p = _output_path(ctx, a, strip_prefix)
+            p = output_path(ctx, a, strip_prefix)
             actions.append(struct(src = a, dst = _join_paths(dest, p)))
 
     return actions
