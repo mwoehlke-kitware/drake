@@ -18,6 +18,36 @@ def _is_drake_label(x):
         return False
 
 #------------------------------------------------------------------------------
+def _output_path(ctx, input_file, strip_prefix):
+    """Compute output path (without destination prefix) for install action.
+
+    This computes the adjusted output path for an input file. It is the same as
+    :func:`output_path`, but additionally handles files outside the current
+    package when :func:`install` or :func:`install_files` is invoked with
+    non-empty ``allowed_externals``.
+    """
+
+    # Try the current package first
+    path = output_path(ctx, input_file, strip_prefix)
+    if path != None:
+        return path
+
+    # If we were unable to resolve a path, the file must be "foreign", so try
+    # to resolve against the list of allowed externals.
+    if path == None and hasattr(ctx.attr, "allowed_externals"):
+        for x in ctx.attr.allowed_externals:
+            package_root = join_paths(x.label.workspace_root, x.label.package)
+            path = output_path(ctx, input_file, strip_prefix, package_root)
+            if path != None:
+                return path
+
+    # If we get here, we were not able to resolve the path; give up, and print
+    # a warning about installing the "foreign" file.
+    print("%s installing file %s which is not in current package"
+          % (ctx.label, input_file.path))
+    return input_file.basename
+
+#------------------------------------------------------------------------------
 def _install_actions(ctx, file_labels, dests, strip_prefixes = []):
     """Compute install actions for files.
 
@@ -59,7 +89,7 @@ def _install_actions(ctx, file_labels, dests, strip_prefixes = []):
             else:
                 strip_prefix = strip_prefixes
 
-            p = output_path(ctx, a, strip_prefix)
+            p = _output_path(ctx, a, strip_prefix)
             actions.append(struct(src = a, dst = join_paths(dest, p)))
 
     return actions
@@ -209,6 +239,7 @@ install = rule(
         "java_strip_prefix": attr.string_list(),
         "py_dest": attr.string(default = "lib/python2.7/site_packages"),
         "py_strip_prefix": attr.string_list(),
+        "allowed_externals": attr.label_list(),
         "install_script_template": attr.label(
             allow_files = True,
             executable = True,
@@ -226,6 +257,13 @@ This generates installation information for various artifacts, including
 documentation and header files, and targets (e.g. ``cc_binary``). By default,
 the path of any files is included in the install destination.
 See :rule:`install_files` for details.
+
+Normally, you should not install files or targets from a workspace other than
+the one invoking ``install``, and ``install`` will warn if asked to do so. In
+cases (e.g. adding install rules to a project that is natively built with
+bazel, but does not define an install) where this *is* the right thing to do,
+the ``allowed_externals`` argument may be used to specify a list of externals
+whose files it is okay to install, which will suppress the warning.
 
 Note:
     By default, headers to be installed must be explicitly listed. This is to
@@ -266,6 +304,7 @@ Args:
     py_dest: Destination for Python targets
         (default = "lib/python2.7/site_packages").
     py_strip_prefix: List of prefixes to remove from Python paths.
+    allowed_externals: List of external packages whose files may be installed.
 """
 
 #------------------------------------------------------------------------------
@@ -286,6 +325,7 @@ install_files = rule(
         "dest": attr.string(mandatory = True),
         "files": attr.label_list(allow_files = True),
         "strip_prefix": attr.string_list(),
+        "allowed_externals": attr.string_list(),
     },
     implementation = _install_files_impl,
 )
@@ -313,10 +353,14 @@ complete path components (e.g. ``a/*/`` is okay, but ``a*/`` is not treated as
 a glob and will be matched literally). Due to Skylark limitations, at most one
 ``**`` may be matched.
 
+``install_files`` has the same caveats regarding external files as
+:func:`install`.
+
 Args:
     dest: Destination for files.
     files: List of files to install.
     strip_prefix: List of prefixes to remove from input paths.
+    allowed_externals: List of external packages whose files may be installed.
 """
 
 #END rules
