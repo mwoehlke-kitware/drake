@@ -89,11 +89,12 @@ set(double-conversion_url "https://github.com/google/double-conversion/archive/v
 set(double-conversion_md5 "e94d3a33a417e692e5600e75019f0272")
 list(APPEND ALL_PROJECTS double-conversion)
 
-# lapack (blas)
-set(lapack_version 3.10.0)
-set(lapack_url "https://github.com/Reference-LAPACK/lapack/archive/v${lapack_version}.tar.gz")
-set(lapack_md5 "d70fc27a8bdebe00481c97c728184f09")
-list(APPEND ALL_PROJECTS lapack)
+# openblas
+set(openblas_version 0.3.10)
+set(openblas_url "https://github.com/xianyi/OpenBLAS/archive/v${openblas_version}.tar.gz")
+set(openblas_dlname "openblas-${openblas_version}.tar.gz")
+set(openblas_md5 "4727a1333a380b67c8d7c7787a3d9c9a")
+list(APPEND ALL_PROJECTS openblas)
 
 # suitesparse
 set(suitesparse_version 4.4.5)

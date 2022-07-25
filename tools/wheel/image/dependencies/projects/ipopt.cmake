@@ -18,12 +18,13 @@ ExternalProject_Add(ipopt
     URL ${ipopt_url}
     URL_MD5 ${ipopt_md5}
     DOWNLOAD_NAME ${ipopt_dlname}
-    DEPENDS lapack ${ipopt_extra_dependencies}
+    DEPENDS openblas ${ipopt_extra_dependencies}
     ${COMMON_EP_ARGS}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure
         --prefix=${CMAKE_INSTALL_PREFIX}
         --disable-shared
+        --with-blas-lib=-lopenblas
         FFLAGS=-fPIC
         CFLAGS=-fPIC
         CXXFLAGS=-fPIC

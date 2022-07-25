@@ -28,23 +28,23 @@ index 3ab813c..e5cba3e 100644
  
  # Which version of MAKE you are using (default is "make")
  # MAKE = make
-@@ -119,8 +119,8 @@ INSTALL_INCLUDE = /usr/local/include
- # naming the BLAS and LAPACK library (*.a or *.so) files.
+@@ -120,7 +120,7 @@ INSTALL_INCLUDE = /usr/local/include
  
  # This is probably slow ... it might connect to the Standard Reference BLAS:
--# BLAS = -lblas -lgfortran
+ # BLAS = -lblas -lgfortran
 -  LAPACK = -llapack
-+BLAS = -L@INSTALL_PREFIX@/lib -lblas @LDFLAGS_GFORTRAN@
-+LAPACK = -L@INSTALL_PREFIX@/lib -llapack
++# LAPACK = -llapack
  
  # MKL 
  # BLAS = -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKLROOT)/lib/intel64/libmkl_core.a $(MKLROOT)/lib/intel64/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm
-@@ -131,7 +131,7 @@ INSTALL_INCLUDE = /usr/local/include
+@@ -131,8 +131,8 @@ INSTALL_INCLUDE = /usr/local/include
  # LAPACK =
  
  # OpenBLAS
 -  BLAS = -lopenblas
-+# BLAS = -lopenblas
- # LAPACK = 
+-# LAPACK = 
++BLAS = -L@INSTALL_PREFIX@/lib -lopenblas -pthread
++LAPACK =
  
  # NOTE: this next option for the "Goto BLAS" has nothing to do with a "goto"
+ # statement.  Rather, the Goto BLAS is written by Dr. Kazushige Goto.

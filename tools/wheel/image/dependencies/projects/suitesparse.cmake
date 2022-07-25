@@ -1,5 +1,5 @@
 ExternalProject_Add(suitesparse
-    DEPENDS lapack
+    DEPENDS openblas
     URL ${suitesparse_url}
     URL_MD5 ${suitesparse_md5}
     ${COMMON_EP_ARGS}
