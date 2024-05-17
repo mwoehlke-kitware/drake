@@ -48,6 +48,7 @@ def _transform_substitions(*, line, definitions, used_vars, pattern):
 
     return line, used_vars
 
+
 # Transform a source code line per CMake's configure_file semantics.
 #
 # The 'definitions' provides values for CMake variables.  The dict's keys are
