@@ -1,4 +1,9 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
+load(
+    "@drake//tools/workspace:cmake_configure_file.bzl",
+    "cmake_configure_file",
+)
 load(
     "@python//:version.bzl",
     "PYTHON_SITE_PACKAGES_RELPATH",
@@ -20,16 +25,28 @@ load(
 )
 load(
     "//tools/skylark:drake_py.bzl",
+    "drake_py_binary",
     "drake_py_unittest",
 )
 load(":build_components.bzl", "LIBDRAKE_COMPONENTS")
 load(":header_lint.bzl", "cc_check_allowed_headers")
-load(
-    "@drake//tools/workspace:cmake_configure_file.bzl",
-    "cmake_configure_file",
-)
 
 package(default_visibility = ["//visibility:private"])
+
+config_setting(
+    name = "stamp_detect",
+    values = {"stamp": "1"},
+)
+
+genrule(
+    name = "stamp_version",
+    outs = ["stamp_version.txt"],
+    cmd_bash = select({
+        ":stamp_detect": "sed -ne 's#^STABLE_VERSION ##p' bazel-out/stable-status.txt > $@",  # noqa
+        "//conditions:default": "echo '0.0.0 00000000' > $@",
+    }),
+    stamp = True,
+)
 
 drake_py_binary(
     name = "parse_version",
@@ -37,30 +54,26 @@ drake_py_binary(
 )
 
 run_binary(
-    srcs = select({
-        "MAGIC": ["VERSION.TXT"],
-        "//conditions:default": [],
-    }),
+    name = "run_parse_version",
+    srcs = ["stamp_version.txt"],
     outs = ["drake-version.cmake"],
-    tool = "parse_version",
     args = [
+        "$(location stamp_version.txt)",
         "$(location drake-version.cmake)",
-    ] + select({
-        "MAGIC": ["VERSION.TXT"],
-        "//conditions:default": [],
-    }),
+    ],
+    tool = "parse_version",
 )
 
 cmake_configure_file(
     name = "drake_config_cmake_expand",
     src = "drake-config.cmake.in",
     out = "drake-config.cmake",
+    atonly = True,
+    cmakelists = ["drake-version.cmake"],
     defines = [
         "PYTHON_SITE_PACKAGES_RELPATH=" + PYTHON_SITE_PACKAGES_RELPATH,
         "PYTHON_VERSION=" + PYTHON_VERSION,
     ],
-    cmakelists = ["drake-version.cmake"],
-    atonly = True,
 )
 
 install_cmake_config(
